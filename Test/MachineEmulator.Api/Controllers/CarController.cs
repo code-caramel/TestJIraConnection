@@ -7,7 +7,12 @@ namespace MachineEmulator.Api.Controllers
     [Route("api/[controller]")]
     public class CarController : ControllerBase
     {
-        private static Car _car = new Car();
+        private readonly ICar _car;
+
+        public CarController(ICar car)
+        {
+            _car = car;
+        }
 
         [HttpGet("status")]
         public IActionResult GetStatus() => Ok(new { gas = _car.Gas, isRunning = _car.IsRunning });
