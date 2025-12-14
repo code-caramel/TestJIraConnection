@@ -1,6 +1,19 @@
 ﻿namespace MachineEmulator;
 
-public class Car
+public interface ICar
+{
+	double Gas { get; }
+	bool IsRunning { get; }
+	double GasConsumptionPerKm { get; set; }
+	void Start();
+	void Stop();
+	void Drive(double km);
+	void Brake();
+	void Turn(string direction);
+	void Refuel(double amount);
+}
+
+public class Car : ICar
 {
 	public double Gas { get; private set; }
 	public bool IsRunning { get; private set; }
