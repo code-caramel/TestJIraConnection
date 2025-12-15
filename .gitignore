@@ -60,3 +60,116 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# ============================================
+# Binary Files - SCRUM-12
+# Prevent binary files from being checked in
+# ============================================
+
+# Compiled executables and libraries
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.o
+*.obj
+*.pdb
+*.ilk
+*.exp
+
+# .NET compiled files
+*.com
+*.class
+
+# Archives and compressed files
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.cab
+
+# Image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.ico
+*.tiff
+*.tif
+*.webp
+*.svg
+*.psd
+*.ai
+
+# Audio files
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.aac
+*.wma
+*.m4a
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+*.webm
+*.m4v
+
+# Document binaries
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+*.accdb
+
+# Font files
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Package/installer files
+*.msi
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.apk
+*.ipa
+
+# Disk images
+*.iso
+*.img
+*.vhd
+*.vmdk
+
+# Other binary formats
+*.bin
+*.dat
+*.dump
+*.pyc
+*.pyo
+*.cache
