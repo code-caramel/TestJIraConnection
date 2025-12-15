@@ -66,10 +66,10 @@ function App() {
     return [...data].sort((a, b) => {
       const aValue = getNestedValue(a, orderBy);
       const bValue = getNestedValue(b, orderBy);
-      
+
       if (aValue === null || aValue === undefined) return 1;
       if (bValue === null || bValue === undefined) return -1;
-      
+
       const comparison = String(aValue).toLowerCase().localeCompare(String(bValue).toLowerCase());
       return order === 'asc' ? comparison : -comparison;
     });
@@ -87,7 +87,7 @@ function App() {
   const handleSort = (table: 'cars' | 'users' | 'roles' | 'permissions', property: string) => {
     const setSort = { cars: setCarsSort, users: setUsersSort, roles: setRolesSort, permissions: setPermissionsSort }[table];
     const currentSort = { cars: carsSort, users: usersSort, roles: rolesSort, permissions: permissionsSort }[table];
-    
+
     const isAsc = currentSort.orderBy === property && currentSort.order === 'asc';
     setSort({ orderBy: property, order: isAsc ? 'desc' : 'asc' });
   };
