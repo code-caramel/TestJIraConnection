@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Container, Box, Typography, TextField, Button, Paper, Alert, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, CircularProgress, Stack, Tabs, Tab,
+  TableCell, TableContainer, TableHead, TableRow, TableSortLabel, CircularProgress, Stack, Tabs, Tab,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel,
   Select, MenuItem, Checkbox, ListItemText, OutlinedInput, IconButton, Chip
 } from '@mui/material';
@@ -53,6 +53,44 @@ function App() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [cars, setCars] = useState<Car[]>([]);
   const [carStatuses, setCarStatuses] = useState<CarStatus[]>([]);
+
+  // Sorting states - default to first column ascending
+  type Order = 'asc' | 'desc';
+  const [carsSort, setCarsSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
+  const [usersSort, setUsersSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'userName', order: 'asc' });
+  const [rolesSort, setRolesSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
+  const [permissionsSort, setPermissionsSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
+
+  // Sorting utility function
+  const sortData = <T,>(data: T[], orderBy: string, order: Order): T[] => {
+    return [...data].sort((a, b) => {
+      const aValue = getNestedValue(a, orderBy);
+      const bValue = getNestedValue(b, orderBy);
+      
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+      
+      const comparison = String(aValue).toLowerCase().localeCompare(String(bValue).toLowerCase());
+      return order === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const getNestedValue = (obj: any, path: string): any => {
+    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    // Handle arrays (e.g., roles) by joining their names for sorting
+    if (Array.isArray(value)) {
+      return value.map((item: any) => item.name || '').sort().join(', ');
+    }
+    return value;
+  };
+
+  const handleSort = (table: 'cars' | 'users' | 'roles' | 'permissions', property: string) => {
+    const setSort = { cars: setCarsSort, users: setUsersSort, roles: setRolesSort, permissions: setPermissionsSort }[table];
+    const currentSort = { cars: carsSort, users: usersSort, roles: rolesSort, permissions: permissionsSort }[table];
+    
+    const isAsc = currentSort.orderBy === property && currentSort.order === 'asc';
+    setSort({ orderBy: property, order: isAsc ? 'desc' : 'asc' });
+  };
 
   // Dialog states
   const [userDialog, setUserDialog] = useState<{ open: boolean; user?: User }>({ open: false });
@@ -315,13 +353,29 @@ function App() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Status</TableCell>
+                        <TableCell sortDirection={carsSort.orderBy === 'name' ? carsSort.order : false}>
+                          <TableSortLabel
+                            active={carsSort.orderBy === 'name'}
+                            direction={carsSort.orderBy === 'name' ? carsSort.order : 'asc'}
+                            onClick={() => handleSort('cars', 'name')}
+                          >
+                            Name
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sortDirection={carsSort.orderBy === 'status.status' ? carsSort.order : false}>
+                          <TableSortLabel
+                            active={carsSort.orderBy === 'status.status'}
+                            direction={carsSort.orderBy === 'status.status' ? carsSort.order : 'asc'}
+                            onClick={() => handleSort('cars', 'status.status')}
+                          >
+                            Status
+                          </TableSortLabel>
+                        </TableCell>
                         <TableCell align="right">Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {cars.map(car => (
+                      {sortData(cars, carsSort.orderBy, carsSort.order).map(car => (
                         <TableRow key={car.id}>
                           <TableCell>{car.name}</TableCell>
                           <TableCell>
@@ -382,13 +436,29 @@ function App() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Username</TableCell>
-                        <TableCell>Roles</TableCell>
+                        <TableCell sortDirection={usersSort.orderBy === 'userName' ? usersSort.order : false}>
+                          <TableSortLabel
+                            active={usersSort.orderBy === 'userName'}
+                            direction={usersSort.orderBy === 'userName' ? usersSort.order : 'asc'}
+                            onClick={() => handleSort('users', 'userName')}
+                          >
+                            Username
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sortDirection={usersSort.orderBy === 'roles' ? usersSort.order : false}>
+                          <TableSortLabel
+                            active={usersSort.orderBy === 'roles'}
+                            direction={usersSort.orderBy === 'roles' ? usersSort.order : 'asc'}
+                            onClick={() => handleSort('users', 'roles')}
+                          >
+                            Roles
+                          </TableSortLabel>
+                        </TableCell>
                         <TableCell align="right">Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {users.map(user => (
+                      {sortData(users, usersSort.orderBy, usersSort.order).map(user => (
                         <TableRow key={user.id}>
                           <TableCell>{user.userName}</TableCell>
                           <TableCell>
@@ -418,13 +488,21 @@ function App() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Name</TableCell>
+                        <TableCell sortDirection={rolesSort.orderBy === 'name' ? rolesSort.order : false}>
+                          <TableSortLabel
+                            active={rolesSort.orderBy === 'name'}
+                            direction={rolesSort.orderBy === 'name' ? rolesSort.order : 'asc'}
+                            onClick={() => handleSort('roles', 'name')}
+                          >
+                            Name
+                          </TableSortLabel>
+                        </TableCell>
                         <TableCell>Permissions</TableCell>
                         <TableCell align="right">Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {roles.map(role => (
+                      {sortData(roles, rolesSort.orderBy, rolesSort.order).map(role => (
                         <TableRow key={role.id}>
                           <TableCell>{role.name}</TableCell>
                           <TableCell>
@@ -454,12 +532,20 @@ function App() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Name</TableCell>
+                        <TableCell sortDirection={permissionsSort.orderBy === 'name' ? permissionsSort.order : false}>
+                          <TableSortLabel
+                            active={permissionsSort.orderBy === 'name'}
+                            direction={permissionsSort.orderBy === 'name' ? permissionsSort.order : 'asc'}
+                            onClick={() => handleSort('permissions', 'name')}
+                          >
+                            Name
+                          </TableSortLabel>
+                        </TableCell>
                         <TableCell align="right">Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {permissions.map(perm => (
+                      {sortData(permissions, permissionsSort.orderBy, permissionsSort.order).map(perm => (
                         <TableRow key={perm.id}>
                           <TableCell>{perm.name}</TableCell>
                           <TableCell align="right">
