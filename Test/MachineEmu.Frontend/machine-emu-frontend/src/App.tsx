@@ -40,6 +40,7 @@ interface Car {
 
 function App() {
   const [token, setToken] = useState<string | null>(null);
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -61,39 +62,72 @@ function App() {
 
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
+  // Permission helper functions
+  const hasPermission = (permission: string) => userPermissions.includes(permission);
+  const canManageUsers = () => hasPermission('ManageUsers');
+  const canManageRoles = () => hasPermission('ManageRoles');
+  const canManageCars = () => hasPermission('ManageCars');
+  const canStartCar = () => hasPermission('StartCar');
+  const canStopCar = () => hasPermission('StopCar');
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
       const res = await axios.post(`${API_BASE}/Auth/login`, { userName, password });
       setToken(res.data.token);
+      setUserPermissions(res.data.permissions || []);
     } catch {
       setError('Invalid credentials or server error');
     }
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setUserPermissions([]);
+    setUsers([]);
+    setRoles([]);
+    setPermissions([]);
+    setCars([]);
+    setCarStatuses([]);
   };
 
   const fetchData = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const [usersRes, rolesRes, permsRes, carsRes, statusesRes] = await Promise.all([
-        axios.get(`${API_BASE}/User`, authHeaders),
-        axios.get(`${API_BASE}/Role`, authHeaders),
-        axios.get(`${API_BASE}/Permission`, authHeaders),
-        axios.get(`${API_BASE}/Car`, authHeaders),
-        axios.get(`${API_BASE}/Car/statuses`, authHeaders),
-      ]);
-      setUsers(usersRes.data);
-      setRoles(rolesRes.data);
-      setPermissions(permsRes.data);
-      setCars(carsRes.data);
-      setCarStatuses(statusesRes.data);
+      // Only fetch data the user has permission to access
+      const requests: Promise<any>[] = [
+        axios.get(`${API_BASE}/Car`, authHeaders).catch(() => ({ data: [] })),
+        axios.get(`${API_BASE}/Car/statuses`, authHeaders).catch(() => ({ data: [] })),
+      ];
+
+      if (hasPermission('ManageUsers')) {
+        requests.push(axios.get(`${API_BASE}/User`, authHeaders).catch(() => ({ data: [] })));
+      }
+      if (hasPermission('ManageRoles')) {
+        requests.push(axios.get(`${API_BASE}/Role`, authHeaders).catch(() => ({ data: [] })));
+        requests.push(axios.get(`${API_BASE}/Permission`, authHeaders).catch(() => ({ data: [] })));
+      }
+
+      const results = await Promise.all(requests);
+      setCars(results[0].data);
+      setCarStatuses(results[1].data);
+
+      let idx = 2;
+      if (hasPermission('ManageUsers')) {
+        setUsers(results[idx++].data);
+      }
+      if (hasPermission('ManageRoles')) {
+        setRoles(results[idx++].data);
+        setPermissions(results[idx++].data);
+      }
     } catch {
       setError('Failed to load data');
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, userPermissions]);
 
   useEffect(() => {
     fetchData();
@@ -246,16 +280,19 @@ function App() {
       <Box mt={4} component={Paper} p={4}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h4">Machine Emulator Dashboard</Typography>
-          <Button variant="outlined" color="secondary" onClick={() => setToken(null)}>Logout</Button>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Chip label={`Permissions: ${userPermissions.join(', ') || 'None'}`} size="small" variant="outlined" />
+            <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>
+          </Stack>
         </Stack>
 
         {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
 
         <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 3 }}>
           <Tab label="Cars" />
-          <Tab label="Users" />
-          <Tab label="Roles" />
-          <Tab label="Permissions" />
+          {canManageUsers() && <Tab label="Users" />}
+          {canManageRoles() && <Tab label="Roles" />}
+          {canManageRoles() && <Tab label="Permissions" />}
         </Tabs>
 
         {loading ? (
@@ -267,11 +304,13 @@ function App() {
             {/* Cars Tab */}
             {tabIndex === 0 && (
               <>
-                <Stack direction="row" justifyContent="flex-end" mb={2}>
-                  <Button startIcon={<AddIcon />} variant="contained" onClick={() => setCarDialog({ open: true })}>
-                    Add Car
-                  </Button>
-                </Stack>
+                {canManageCars() && (
+                  <Stack direction="row" justifyContent="flex-end" mb={2}>
+                    <Button startIcon={<AddIcon />} variant="contained" onClick={() => setCarDialog({ open: true })}>
+                      Add Car
+                    </Button>
+                  </Stack>
+                )}
                 <TableContainer component={Paper}>
                   <Table>
                     <TableHead>
@@ -292,28 +331,36 @@ function App() {
                             />
                           </TableCell>
                           <TableCell align="right">
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              sx={{ mr: 1 }}
-                              disabled={car.status?.status === 'Running'}
-                              onClick={() => handleCarAction(car.id, 'start')}
-                            >
-                              Start
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              sx={{ mr: 1 }}
-                              disabled={car.status?.status === 'Stopped'}
-                              onClick={() => handleCarAction(car.id, 'stop')}
-                            >
-                              Stop
-                            </Button>
-                            <IconButton onClick={() => setCarDialog({ open: true, car })}><EditIcon /></IconButton>
-                            <IconButton onClick={() => deleteCar(car.id)}><DeleteIcon /></IconButton>
+                            {canStartCar() && (
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                sx={{ mr: 1 }}
+                                disabled={car.status?.status === 'Running'}
+                                onClick={() => handleCarAction(car.id, 'start')}
+                              >
+                                Start
+                              </Button>
+                            )}
+                            {canStopCar() && (
+                              <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                sx={{ mr: 1 }}
+                                disabled={car.status?.status === 'Stopped'}
+                                onClick={() => handleCarAction(car.id, 'stop')}
+                              >
+                                Stop
+                              </Button>
+                            )}
+                            {canManageCars() && (
+                              <>
+                                <IconButton onClick={() => setCarDialog({ open: true, car })}><EditIcon /></IconButton>
+                                <IconButton onClick={() => deleteCar(car.id)}><DeleteIcon /></IconButton>
+                              </>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -323,8 +370,8 @@ function App() {
               </>
             )}
 
-            {/* Users Tab */}
-            {tabIndex === 1 && (
+            {/* Users Tab - Only shown for users with ManageUsers permission */}
+            {tabIndex === 1 && canManageUsers() && (
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setUserDialog({ open: true })}>
@@ -359,8 +406,8 @@ function App() {
               </>
             )}
 
-            {/* Roles Tab */}
-            {tabIndex === 2 && (
+            {/* Roles Tab - Only shown for users with ManageRoles permission */}
+            {tabIndex === 2 && canManageRoles() && (
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setRoleDialog({ open: true })}>
@@ -395,8 +442,8 @@ function App() {
               </>
             )}
 
-            {/* Permissions Tab */}
-            {tabIndex === 3 && (
+            {/* Permissions Tab - Only shown for users with ManageRoles permission */}
+            {tabIndex === 3 && canManageRoles() && (
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setPermDialog({ open: true })}>

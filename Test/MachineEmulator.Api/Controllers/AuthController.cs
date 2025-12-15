@@ -40,21 +40,73 @@ namespace MachineEmulator.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.UserName == req.UserName);
+            var user = await _db.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                        .ThenInclude(r => r.RolePermissions)
+                            .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(u => u.UserName == req.UserName);
             if (user == null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
                 return Unauthorized();
-            var token = GenerateJwtToken(user);
-            return Ok(new { token });
+
+            // Get user permissions
+            var permissions = user.UserRoles
+                .SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToList();
+
+            var token = GenerateJwtToken(user, permissions);
+            return Ok(new { token, permissions });
         }
 
-        private string GenerateJwtToken(User user)
+        [HttpGet("me")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized();
+
+            var userId = int.Parse(userIdClaim.Value);
+            var user = await _db.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                        .ThenInclude(r => r.RolePermissions)
+                            .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null) return NotFound();
+
+            var permissions = user.UserRoles
+                .SelectMany(ur => ur.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name)
+                .Distinct()
+                .ToList();
+
+            var roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+
+            return Ok(new {
+                id = user.Id,
+                userName = user.UserName,
+                roles,
+                permissions
+            });
+        }
+
+        private string GenerateJwtToken(User user, List<string> permissions)
         {
             var jwt = _config.GetSection("Jwt");
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName)
             };
+
+            // Add permissions as claims
+            foreach (var permission in permissions)
+            {
+                claims.Add(new Claim("permission", permission));
+            }
+
             var jwtKey = jwt["Key"] ?? throw new InvalidOperationException("Jwt:Key is missing in configuration");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

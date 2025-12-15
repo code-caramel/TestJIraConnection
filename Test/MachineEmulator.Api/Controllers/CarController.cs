@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MachineEmulator;
+using MachineEmulator.Api.Authorization;
 
 namespace MachineEmulator.Api.Controllers
 {
@@ -18,6 +20,7 @@ namespace MachineEmulator.Api.Controllers
         }
 
         [HttpPost("{id}/start")]
+        [Authorize(Policy = PermissionPolicies.StartCar)]
         public IActionResult StartById(int id)
         {
             var car = _db.Cars.Include(c => c.Status).FirstOrDefault(c => c.Id == id);
@@ -30,6 +33,7 @@ namespace MachineEmulator.Api.Controllers
         }
 
         [HttpPost("{id}/stop")]
+        [Authorize(Policy = PermissionPolicies.StopCar)]
         public IActionResult StopById(int id)
         {
             var car = _db.Cars.Include(c => c.Status).FirstOrDefault(c => c.Id == id);

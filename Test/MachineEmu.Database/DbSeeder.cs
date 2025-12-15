@@ -31,13 +31,21 @@ using System.Linq;
 					db.SaveChanges();
 				}
 
-				if (!db.RolePermissions.Any())
+				// Always reset RolePermissions to ensure correct permission assignments
 				{
+					// Remove existing RolePermissions
+					db.RolePermissions.RemoveRange(db.RolePermissions.ToList());
+					db.SaveChanges();
+
 					var admin = db.Roles.First(r => r.Name == "Admin");
 					var user = db.Roles.First(r => r.Name == "User");
 					var perms = db.Permissions.ToList();
-					var adminPerms = perms.Select(p => new RolePermission { RoleId = admin.Id, PermissionId = p.Id });
-					var userPerms = perms.Where(p => p.Name == "StartCar" || p.Name == "StopCar" || p.Name == "GetCarStatus").Select(p => new RolePermission { RoleId = user.Id, PermissionId = p.Id });
+					// Admin gets only management permissions (NOT StartCar/StopCar/GetCarStatus)
+					var adminPerms = perms.Where(p => p.Name == "ManageUsers" || p.Name == "ManageRoles" || p.Name == "ManageCars")
+						.Select(p => new RolePermission { RoleId = admin.Id, PermissionId = p.Id });
+					// User gets only car operation permissions
+					var userPerms = perms.Where(p => p.Name == "StartCar" || p.Name == "StopCar" || p.Name == "GetCarStatus")
+						.Select(p => new RolePermission { RoleId = user.Id, PermissionId = p.Id });
 					db.RolePermissions.AddRange(adminPerms.Concat(userPerms));
 					db.SaveChanges();
 				}

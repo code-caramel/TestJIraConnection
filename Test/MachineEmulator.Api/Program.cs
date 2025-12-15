@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using MachineEmu.Database;
+using MachineEmulator.Api.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 // Enable CORS
@@ -45,7 +47,23 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(PermissionPolicies.ManageUsers, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.ManageUsers)));
+    options.AddPolicy(PermissionPolicies.ManageRoles, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.ManageRoles)));
+    options.AddPolicy(PermissionPolicies.ManageCars, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.ManageCars)));
+    options.AddPolicy(PermissionPolicies.StartCar, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.StartCar)));
+    options.AddPolicy(PermissionPolicies.StopCar, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.StopCar)));
+    options.AddPolicy(PermissionPolicies.GetCarStatus, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.GetCarStatus)));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 
 
 var app = builder.Build();

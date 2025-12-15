@@ -1,11 +1,14 @@
 using MachineEmu.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MachineEmulator.Api.Authorization;
 
 namespace MachineEmulator.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = PermissionPolicies.ManageRoles)]
     public class RoleController : ControllerBase
     {
         private readonly MachineEmuDbContext _db;
