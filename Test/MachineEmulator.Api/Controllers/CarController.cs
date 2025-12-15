@@ -47,10 +47,90 @@ namespace MachineEmulator.Api.Controllers
                 .Select(c => new {
                     id = c.Id,
                     name = c.Name,
-                    status = new { status = c.Status.Status }
+                    status = new { id = c.Status.Id, status = c.Status.Status }
                 })
                 .ToList();
             return Ok(cars);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetCarById(int id)
+        {
+            var car = _db.Cars
+                .Where(c => c.Id == id)
+                .Select(c => new {
+                    id = c.Id,
+                    name = c.Name,
+                    status = new { id = c.Status.Id, status = c.Status.Status }
+                })
+                .FirstOrDefault();
+            if (car == null) return NotFound();
+            return Ok(car);
+        }
+
+        [HttpGet("statuses")]
+        public IActionResult GetCarStatuses()
+        {
+            var statuses = _db.CarStatuses
+                .Select(s => new { id = s.Id, status = s.Status })
+                .ToList();
+            return Ok(statuses);
+        }
+
+        [HttpPost]
+        public IActionResult CreateCar([FromBody] CreateCarRequest req)
+        {
+            var status = _db.CarStatuses.FirstOrDefault(s => s.Id == req.StatusId);
+            if (status == null)
+            {
+                status = _db.CarStatuses.FirstOrDefault(s => s.Status == "Stopped");
+            }
+            if (status == null) return BadRequest("No valid status found");
+
+            var car = new MachineEmu.Database.Car
+            {
+                Name = req.Name ?? string.Empty,
+                StatusId = status.Id
+            };
+            _db.Cars.Add(car);
+            _db.SaveChanges();
+
+            return Ok(new { id = car.Id, name = car.Name, status = new { id = status.Id, status = status.Status } });
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateCar(int id, [FromBody] UpdateCarRequest req)
+        {
+            var car = _db.Cars.Include(c => c.Status).FirstOrDefault(c => c.Id == id);
+            if (car == null) return NotFound();
+
+            if (!string.IsNullOrEmpty(req.Name))
+            {
+                car.Name = req.Name;
+            }
+
+            if (req.StatusId.HasValue)
+            {
+                var status = _db.CarStatuses.FirstOrDefault(s => s.Id == req.StatusId.Value);
+                if (status != null)
+                {
+                    car.StatusId = status.Id;
+                }
+            }
+
+            _db.SaveChanges();
+            return Ok(new { id = car.Id, name = car.Name, status = new { id = car.Status.Id, status = car.Status.Status } });
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCar(int id)
+        {
+            var car = _db.Cars.FirstOrDefault(c => c.Id == id);
+            if (car == null) return NotFound();
+
+            _db.Cars.Remove(car);
+            _db.SaveChanges();
+            return Ok();
         }
 
         [HttpGet("status")]
@@ -111,5 +191,17 @@ namespace MachineEmulator.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+    }
+
+    public class CreateCarRequest
+    {
+        public string? Name { get; set; }
+        public int? StatusId { get; set; }
+    }
+
+    public class UpdateCarRequest
+    {
+        public string? Name { get; set; }
+        public int? StatusId { get; set; }
     }
 }

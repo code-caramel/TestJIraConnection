@@ -17,6 +17,7 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 builder.Services.AddScoped<MachineEmulator.ICar, MachineEmulator.Car>();
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 
 // Add DbContext
 builder.Services.AddDbContext<MachineEmuDbContext>(options =>
@@ -67,5 +68,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
