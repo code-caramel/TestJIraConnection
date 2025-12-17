@@ -1,0 +1,100 @@
+{
+  "common": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "actions": "Aktionen",
+    "name": "Name",
+    "status": "Status",
+    "start": "Starten",
+    "stop": "Stoppen",
+    "drive": "Fahren",
+    "loading": "Laden...",
+    "permissions": "Berechtigungen",
+    "language": "Sprache"
+  },
+  "auth": {
+    "username": "Benutzername",
+    "password": "Passwort",
+    "invalidCredentials": "Ungültige Anmeldedaten oder Serverfehler",
+    "newPasswordHint": "Neues Passwort (leer lassen um beizubehalten)"
+  },
+  "dashboard": {
+    "title": "Maschinen-Emulator Dashboard"
+  },
+  "tabs": {
+    "cars": "Autos",
+    "motorcycles": "Motorräder",
+    "users": "Benutzer",
+    "roles": "Rollen",
+    "permissions": "Berechtigungen"
+  },
+  "cars": {
+    "addCar": "Auto hinzufügen",
+    "editCar": "Auto bearbeiten",
+    "carName": "Autoname",
+    "deleteCar": "Auto löschen",
+    "deleteCarConfirm": "Sind Sie sicher, dass Sie dieses Auto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "failedToSave": "Auto konnte nicht gespeichert werden",
+    "failedToDelete": "Auto konnte nicht gelöscht werden",
+    "failedToUpdateStatus": "Autostatus konnte nicht aktualisiert werden",
+    "running": "Läuft",
+    "stopped": "Gestoppt",
+    "unknown": "Unbekannt"
+  },
+  "motorcycles": {
+    "addMotorcycle": "Motorrad hinzufügen",
+    "editMotorcycle": "Motorrad bearbeiten",
+    "motorcycleName": "Motorradname",
+    "deleteMotorcycle": "Motorrad löschen",
+    "deleteMotorcycleConfirm": "Sind Sie sicher, dass Sie dieses Motorrad löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "failedToSave": "Motorrad konnte nicht gespeichert werden",
+    "failedToDelete": "Motorrad konnte nicht gelöscht werden",
+    "failedToUpdateStatus": "Motorradstatus konnte nicht aktualisiert werden",
+    "running": "Läuft",
+    "stopped": "Gestoppt",
+    "driving": "Fährt",
+    "unknown": "Unbekannt"
+  },
+  "users": {
+    "addUser": "Benutzer hinzufügen",
+    "editUser": "Benutzer bearbeiten",
+    "deleteUser": "Benutzer löschen",
+    "deleteUserConfirm": "Sind Sie sicher, dass Sie diesen Benutzer löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "failedToSave": "Benutzer konnte nicht gespeichert werden",
+    "failedToDelete": "Benutzer konnte nicht gelöscht werden",
+    "selectRoles": "Rollen"
+  },
+  "roles": {
+    "addRole": "Rolle hinzufügen",
+    "editRole": "Rolle bearbeiten",
+    "roleName": "Rollenname",
+    "deleteRole": "Rolle löschen",
+    "deleteRoleConfirm": "Sind Sie sicher, dass Sie diese Rolle löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "failedToSave": "Rolle konnte nicht gespeichert werden",
+    "failedToDelete": "Rolle konnte nicht gelöscht werden",
+    "selectPermissions": "Berechtigungen"
+  },
+  "permissions": {
+    "addPermission": "Berechtigung hinzufügen",
+    "editPermission": "Berechtigung bearbeiten",
+    "permissionName": "Berechtigungsname",
+    "deletePermission": "Berechtigung löschen",
+    "deletePermissionConfirm": "Sind Sie sicher, dass Sie diese Berechtigung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "failedToSave": "Berechtigung konnte nicht gespeichert werden",
+    "failedToDelete": "Berechtigung konnte nicht gelöscht werden"
+  },
+  "errors": {
+    "failedToLoadData": "Daten konnten nicht geladen werden"
+  },
+  "languages": {
+    "en": "Englisch",
+    "de": "Deutsch",
+    "it": "Italienisch",
+    "sq": "Albanisch"
+  }
+}

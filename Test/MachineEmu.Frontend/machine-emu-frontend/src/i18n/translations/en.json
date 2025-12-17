@@ -1,0 +1,100 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "actions": "Actions",
+    "name": "Name",
+    "status": "Status",
+    "start": "Start",
+    "stop": "Stop",
+    "drive": "Drive",
+    "loading": "Loading...",
+    "permissions": "Permissions",
+    "language": "Language"
+  },
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "invalidCredentials": "Invalid credentials or server error",
+    "newPasswordHint": "New Password (leave blank to keep)"
+  },
+  "dashboard": {
+    "title": "Machine Emulator Dashboard"
+  },
+  "tabs": {
+    "cars": "Cars",
+    "motorcycles": "Motorcycles",
+    "users": "Users",
+    "roles": "Roles",
+    "permissions": "Permissions"
+  },
+  "cars": {
+    "addCar": "Add Car",
+    "editCar": "Edit Car",
+    "carName": "Car Name",
+    "deleteCar": "Delete Car",
+    "deleteCarConfirm": "Are you sure you want to delete this car? This action cannot be undone.",
+    "failedToSave": "Failed to save car",
+    "failedToDelete": "Failed to delete car",
+    "failedToUpdateStatus": "Failed to update car status",
+    "running": "Running",
+    "stopped": "Stopped",
+    "unknown": "Unknown"
+  },
+  "motorcycles": {
+    "addMotorcycle": "Add Motorcycle",
+    "editMotorcycle": "Edit Motorcycle",
+    "motorcycleName": "Motorcycle Name",
+    "deleteMotorcycle": "Delete Motorcycle",
+    "deleteMotorcycleConfirm": "Are you sure you want to delete this motorcycle? This action cannot be undone.",
+    "failedToSave": "Failed to save motorcycle",
+    "failedToDelete": "Failed to delete motorcycle",
+    "failedToUpdateStatus": "Failed to update motorcycle status",
+    "running": "Running",
+    "stopped": "Stopped",
+    "driving": "Driving",
+    "unknown": "Unknown"
+  },
+  "users": {
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "deleteUserConfirm": "Are you sure you want to delete this user? This action cannot be undone.",
+    "failedToSave": "Failed to save user",
+    "failedToDelete": "Failed to delete user",
+    "selectRoles": "Roles"
+  },
+  "roles": {
+    "addRole": "Add Role",
+    "editRole": "Edit Role",
+    "roleName": "Role Name",
+    "deleteRole": "Delete Role",
+    "deleteRoleConfirm": "Are you sure you want to delete this role? This action cannot be undone.",
+    "failedToSave": "Failed to save role",
+    "failedToDelete": "Failed to delete role",
+    "selectPermissions": "Permissions"
+  },
+  "permissions": {
+    "addPermission": "Add Permission",
+    "editPermission": "Edit Permission",
+    "permissionName": "Permission Name",
+    "deletePermission": "Delete Permission",
+    "deletePermissionConfirm": "Are you sure you want to delete this permission? This action cannot be undone.",
+    "failedToSave": "Failed to save permission",
+    "failedToDelete": "Failed to delete permission"
+  },
+  "errors": {
+    "failedToLoadData": "Failed to load data"
+  },
+  "languages": {
+    "en": "English",
+    "de": "German",
+    "it": "Italian",
+    "sq": "Albanian"
+  }
+}

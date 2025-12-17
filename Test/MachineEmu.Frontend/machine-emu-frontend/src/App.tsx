@@ -7,7 +7,8 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import axios from 'axios';
-import { useConfirmDialog } from './components';
+import { useConfirmDialog, LanguageSelector } from './components';
+import { useI18n } from './i18n';
 
 const API_BASE = 'http://localhost:5051/api';
 
@@ -52,6 +53,7 @@ interface Motorcycle {
 
 function App() {
   const { confirm } = useConfirmDialog();
+  const { t } = useI18n();
   const [token, setToken] = useState<string | null>(null);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [userName, setUserName] = useState('');
@@ -380,10 +382,13 @@ function App() {
     return (
       <Container maxWidth="sm">
         <Box mt={8} component={Paper} p={4}>
-          <Typography variant="h5" mb={2}>Login</Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h5">{t('common.login')}</Typography>
+            <LanguageSelector />
+          </Stack>
           <form onSubmit={handleLogin}>
             <TextField
-              label="Username"
+              label={t('auth.username')}
               value={userName}
               onChange={e => setUserName(e.target.value)}
               fullWidth
@@ -391,7 +396,7 @@ function App() {
               required
             />
             <TextField
-              label="Password"
+              label={t('auth.password')}
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -401,7 +406,7 @@ function App() {
             />
             {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
             <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-              Login
+              {t('common.login')}
             </Button>
           </form>
         </Box>
@@ -413,21 +418,22 @@ function App() {
     <Container maxWidth="lg">
       <Box mt={4} component={Paper} p={4}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h4">Machine Emulator Dashboard</Typography>
+          <Typography variant="h4">{t('dashboard.title')}</Typography>
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Chip label={`Permissions: ${userPermissions.join(', ') || 'None'}`} size="small" variant="outlined" />
-            <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>
+            <LanguageSelector />
+            <Chip label={`${t('common.permissions')}: ${userPermissions.join(', ') || 'None'}`} size="small" variant="outlined" />
+            <Button variant="outlined" color="secondary" onClick={handleLogout}>{t('common.logout')}</Button>
           </Stack>
         </Stack>
 
         {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
 
         <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 3 }}>
-          <Tab label="Cars" />
-          <Tab label="Motorcycles" />
-          {canManageUsers() && <Tab label="Users" />}
-          {canManageRoles() && <Tab label="Roles" />}
-          {canManageRoles() && <Tab label="Permissions" />}
+          <Tab label={t('tabs.cars')} />
+          <Tab label={t('tabs.motorcycles')} />
+          {canManageUsers() && <Tab label={t('tabs.users')} />}
+          {canManageRoles() && <Tab label={t('tabs.roles')} />}
+          {canManageRoles() && <Tab label={t('tabs.permissions')} />}
         </Tabs>
 
         {loading ? (
@@ -442,7 +448,7 @@ function App() {
                 {canManageCars() && (
                   <Stack direction="row" justifyContent="flex-end" mb={2}>
                     <Button startIcon={<AddIcon />} variant="contained" onClick={() => setCarDialog({ open: true })}>
-                      Add Car
+                      {t('cars.addCar')}
                     </Button>
                   </Stack>
                 )}
@@ -456,7 +462,7 @@ function App() {
                             direction={carsSort.orderBy === 'name' ? carsSort.order : 'asc'}
                             onClick={() => handleSort('cars', 'name')}
                           >
-                            Name
+                            {t('common.name')}
                           </TableSortLabel>
                         </TableCell>
                         <TableCell sortDirection={carsSort.orderBy === 'status.status' ? carsSort.order : false}>
@@ -465,10 +471,10 @@ function App() {
                             direction={carsSort.orderBy === 'status.status' ? carsSort.order : 'asc'}
                             onClick={() => handleSort('cars', 'status.status')}
                           >
-                            Status
+                            {t('common.status')}
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell align="right">{t('common.actions')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -477,7 +483,7 @@ function App() {
                           <TableCell>{car.name}</TableCell>
                           <TableCell>
                             <Chip
-                              label={car.status?.status || 'Unknown'}
+                              label={car.status?.status || t('cars.unknown')}
                               color={car.status?.status === 'Running' ? 'success' : 'default'}
                             />
                           </TableCell>
@@ -491,7 +497,7 @@ function App() {
                                 disabled={car.status?.status === 'Running'}
                                 onClick={() => handleCarAction(car.id, 'start')}
                               >
-                                Start
+                                {t('common.start')}
                               </Button>
                             )}
                             {canStopCar() && (
@@ -503,7 +509,7 @@ function App() {
                                 disabled={car.status?.status === 'Stopped'}
                                 onClick={() => handleCarAction(car.id, 'stop')}
                               >
-                                Stop
+                                {t('common.stop')}
                               </Button>
                             )}
                             {canManageCars() && (
@@ -527,7 +533,7 @@ function App() {
                 {canManageMotorcycles() && (
                   <Stack direction="row" justifyContent="flex-end" mb={2}>
                     <Button startIcon={<AddIcon />} variant="contained" onClick={() => setMotorcycleDialog({ open: true })}>
-                      Add Motorcycle
+                      {t('motorcycles.addMotorcycle')}
                     </Button>
                   </Stack>
                 )}
@@ -541,7 +547,7 @@ function App() {
                             direction={motorcyclesSort.orderBy === 'name' ? motorcyclesSort.order : 'asc'}
                             onClick={() => handleSort('motorcycles', 'name')}
                           >
-                            Name
+                            {t('common.name')}
                           </TableSortLabel>
                         </TableCell>
                         <TableCell sortDirection={motorcyclesSort.orderBy === 'status.status' ? motorcyclesSort.order : false}>
@@ -550,10 +556,10 @@ function App() {
                             direction={motorcyclesSort.orderBy === 'status.status' ? motorcyclesSort.order : 'asc'}
                             onClick={() => handleSort('motorcycles', 'status.status')}
                           >
-                            Status
+                            {t('common.status')}
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell align="right">{t('common.actions')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -562,7 +568,7 @@ function App() {
                           <TableCell>{motorcycle.name}</TableCell>
                           <TableCell>
                             <Chip
-                              label={motorcycle.status?.status || 'Unknown'}
+                              label={motorcycle.status?.status || t('motorcycles.unknown')}
                               color={motorcycle.status?.status === 'Running' ? 'success' : motorcycle.status?.status === 'Driving' ? 'primary' : 'default'}
                             />
                           </TableCell>
@@ -576,7 +582,7 @@ function App() {
                                 disabled={motorcycle.status?.status === 'Running' || motorcycle.status?.status === 'Driving'}
                                 onClick={() => handleMotorcycleAction(motorcycle.id, 'start')}
                               >
-                                Start
+                                {t('common.start')}
                               </Button>
                             )}
                             {canDriveMotorcycle() && (
@@ -588,7 +594,7 @@ function App() {
                                 disabled={motorcycle.status?.status !== 'Running'}
                                 onClick={() => handleMotorcycleAction(motorcycle.id, 'drive')}
                               >
-                                Drive
+                                {t('common.drive')}
                               </Button>
                             )}
                             {canStopMotorcycle() && (
@@ -600,7 +606,7 @@ function App() {
                                 disabled={motorcycle.status?.status === 'Stopped'}
                                 onClick={() => handleMotorcycleAction(motorcycle.id, 'stop')}
                               >
-                                Stop
+                                {t('common.stop')}
                               </Button>
                             )}
                             {canManageMotorcycles() && (
@@ -623,7 +629,7 @@ function App() {
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setUserDialog({ open: true })}>
-                    Add User
+                    {t('users.addUser')}
                   </Button>
                 </Stack>
                 <TableContainer component={Paper}>
@@ -636,7 +642,7 @@ function App() {
                             direction={usersSort.orderBy === 'userName' ? usersSort.order : 'asc'}
                             onClick={() => handleSort('users', 'userName')}
                           >
-                            Username
+                            {t('auth.username')}
                           </TableSortLabel>
                         </TableCell>
                         <TableCell sortDirection={usersSort.orderBy === 'roles' ? usersSort.order : false}>
@@ -645,10 +651,10 @@ function App() {
                             direction={usersSort.orderBy === 'roles' ? usersSort.order : 'asc'}
                             onClick={() => handleSort('users', 'roles')}
                           >
-                            Roles
+                            {t('users.selectRoles')}
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell align="right">{t('common.actions')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -675,7 +681,7 @@ function App() {
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setRoleDialog({ open: true })}>
-                    Add Role
+                    {t('roles.addRole')}
                   </Button>
                 </Stack>
                 <TableContainer component={Paper}>
@@ -688,11 +694,11 @@ function App() {
                             direction={rolesSort.orderBy === 'name' ? rolesSort.order : 'asc'}
                             onClick={() => handleSort('roles', 'name')}
                           >
-                            Name
+                            {t('common.name')}
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell>Permissions</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell>{t('roles.selectPermissions')}</TableCell>
+                        <TableCell align="right">{t('common.actions')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -719,7 +725,7 @@ function App() {
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setPermDialog({ open: true })}>
-                    Add Permission
+                    {t('permissions.addPermission')}
                   </Button>
                 </Stack>
                 <TableContainer component={Paper}>
@@ -732,10 +738,10 @@ function App() {
                             direction={permissionsSort.orderBy === 'name' ? permissionsSort.order : 'asc'}
                             onClick={() => handleSort('permissions', 'name')}
                           >
-                            Name
+                            {t('common.name')}
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell align="right">{t('common.actions')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -812,6 +818,7 @@ function UserDialog({ open, user, roles, onClose, onSave }: {
   onClose: () => void;
   onSave: (data: { userName: string; password?: string; roleIds: number[] }, id?: number) => void;
 }) {
+  const { t } = useI18n();
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
@@ -826,10 +833,10 @@ function UserDialog({ open, user, roles, onClose, onSave }: {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{user ? 'Edit User' : 'Add User'}</DialogTitle>
+      <DialogTitle>{user ? t('users.editUser') : t('users.addUser')}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Username"
+          label={t('auth.username')}
           value={userName}
           onChange={e => setUserName(e.target.value)}
           fullWidth
@@ -837,7 +844,7 @@ function UserDialog({ open, user, roles, onClose, onSave }: {
           required
         />
         <TextField
-          label={user ? 'New Password (leave blank to keep)' : 'Password'}
+          label={user ? t('auth.newPasswordHint') : t('auth.password')}
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
@@ -846,12 +853,12 @@ function UserDialog({ open, user, roles, onClose, onSave }: {
           required={!user}
         />
         <FormControl fullWidth margin="normal">
-          <InputLabel>Roles</InputLabel>
+          <InputLabel>{t('users.selectRoles')}</InputLabel>
           <Select
             multiple
             value={selectedRoles}
             onChange={e => setSelectedRoles(e.target.value as number[])}
-            input={<OutlinedInput label="Roles" />}
+            input={<OutlinedInput label={t('users.selectRoles')} />}
             renderValue={(selected) => roles.filter(r => selected.includes(r.id)).map(r => r.name).join(', ')}
           >
             {roles.map(role => (
@@ -864,13 +871,13 @@ function UserDialog({ open, user, roles, onClose, onSave }: {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
         <Button
           variant="contained"
           onClick={() => onSave({ userName, password: password || undefined, roleIds: selectedRoles }, user?.id)}
           disabled={!userName || (!user && !password)}
         >
-          Save
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -885,6 +892,7 @@ function RoleDialog({ open, role, permissions, onClose, onSave }: {
   onClose: () => void;
   onSave: (data: { name: string; permissionIds: number[] }, id?: number) => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [selectedPerms, setSelectedPerms] = useState<number[]>([]);
 
@@ -897,10 +905,10 @@ function RoleDialog({ open, role, permissions, onClose, onSave }: {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{role ? 'Edit Role' : 'Add Role'}</DialogTitle>
+      <DialogTitle>{role ? t('roles.editRole') : t('roles.addRole')}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Role Name"
+          label={t('roles.roleName')}
           value={name}
           onChange={e => setName(e.target.value)}
           fullWidth
@@ -908,12 +916,12 @@ function RoleDialog({ open, role, permissions, onClose, onSave }: {
           required
         />
         <FormControl fullWidth margin="normal">
-          <InputLabel>Permissions</InputLabel>
+          <InputLabel>{t('roles.selectPermissions')}</InputLabel>
           <Select
             multiple
             value={selectedPerms}
             onChange={e => setSelectedPerms(e.target.value as number[])}
-            input={<OutlinedInput label="Permissions" />}
+            input={<OutlinedInput label={t('roles.selectPermissions')} />}
             renderValue={(selected) => permissions.filter(p => selected.includes(p.id)).map(p => p.name).join(', ')}
           >
             {permissions.map(perm => (
@@ -926,9 +934,9 @@ function RoleDialog({ open, role, permissions, onClose, onSave }: {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
         <Button variant="contained" onClick={() => onSave({ name, permissionIds: selectedPerms }, role?.id)} disabled={!name}>
-          Save
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -942,6 +950,7 @@ function PermissionDialog({ open, permission, onClose, onSave }: {
   onClose: () => void;
   onSave: (data: { name: string }, id?: number) => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
 
   useEffect(() => {
@@ -952,10 +961,10 @@ function PermissionDialog({ open, permission, onClose, onSave }: {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{permission ? 'Edit Permission' : 'Add Permission'}</DialogTitle>
+      <DialogTitle>{permission ? t('permissions.editPermission') : t('permissions.addPermission')}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Permission Name"
+          label={t('permissions.permissionName')}
           value={name}
           onChange={e => setName(e.target.value)}
           fullWidth
@@ -964,9 +973,9 @@ function PermissionDialog({ open, permission, onClose, onSave }: {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
         <Button variant="contained" onClick={() => onSave({ name }, permission?.id)} disabled={!name}>
-          Save
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -981,6 +990,7 @@ function CarDialog({ open, car, statuses, onClose, onSave }: {
   onClose: () => void;
   onSave: (data: { name: string; statusId?: number }, id?: number) => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [statusId, setStatusId] = useState<number | ''>('');
 
@@ -993,10 +1003,10 @@ function CarDialog({ open, car, statuses, onClose, onSave }: {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{car ? 'Edit Car' : 'Add Car'}</DialogTitle>
+      <DialogTitle>{car ? t('cars.editCar') : t('cars.addCar')}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Car Name"
+          label={t('cars.carName')}
           value={name}
           onChange={e => setName(e.target.value)}
           fullWidth
@@ -1004,11 +1014,11 @@ function CarDialog({ open, car, statuses, onClose, onSave }: {
           required
         />
         <FormControl fullWidth margin="normal">
-          <InputLabel>Status</InputLabel>
+          <InputLabel>{t('common.status')}</InputLabel>
           <Select
             value={statusId}
             onChange={e => setStatusId(e.target.value as number)}
-            label="Status"
+            label={t('common.status')}
           >
             {statuses.map(s => (
               <MenuItem key={s.id} value={s.id}>{s.status}</MenuItem>
@@ -1017,13 +1027,13 @@ function CarDialog({ open, car, statuses, onClose, onSave }: {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
         <Button
           variant="contained"
           onClick={() => onSave({ name, statusId: statusId || undefined }, car?.id)}
           disabled={!name}
         >
-          Save
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -1038,6 +1048,7 @@ function MotorcycleDialog({ open, motorcycle, statuses, onClose, onSave }: {
   onClose: () => void;
   onSave: (data: { name: string; statusId?: number }, id?: number) => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [statusId, setStatusId] = useState<number | ''>('');
 
@@ -1050,10 +1061,10 @@ function MotorcycleDialog({ open, motorcycle, statuses, onClose, onSave }: {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{motorcycle ? 'Edit Motorcycle' : 'Add Motorcycle'}</DialogTitle>
+      <DialogTitle>{motorcycle ? t('motorcycles.editMotorcycle') : t('motorcycles.addMotorcycle')}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Motorcycle Name"
+          label={t('motorcycles.motorcycleName')}
           value={name}
           onChange={e => setName(e.target.value)}
           fullWidth
@@ -1061,11 +1072,11 @@ function MotorcycleDialog({ open, motorcycle, statuses, onClose, onSave }: {
           required
         />
         <FormControl fullWidth margin="normal">
-          <InputLabel>Status</InputLabel>
+          <InputLabel>{t('common.status')}</InputLabel>
           <Select
             value={statusId}
             onChange={e => setStatusId(e.target.value as number)}
-            label="Status"
+            label={t('common.status')}
           >
             {statuses.map(s => (
               <MenuItem key={s.id} value={s.id}>{s.status}</MenuItem>
@@ -1074,13 +1085,13 @@ function MotorcycleDialog({ open, motorcycle, statuses, onClose, onSave }: {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
         <Button
           variant="contained"
           onClick={() => onSave({ name, statusId: statusId || undefined }, motorcycle?.id)}
           disabled={!name}
         >
-          Save
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>

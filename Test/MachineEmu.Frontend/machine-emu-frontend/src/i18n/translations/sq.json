@@ -1,0 +1,100 @@
+{
+  "common": {
+    "login": "Hyr",
+    "logout": "Dil",
+    "save": "Ruaj",
+    "cancel": "Anulo",
+    "delete": "Fshi",
+    "edit": "Ndrysho",
+    "add": "Shto",
+    "actions": "Veprime",
+    "name": "Emri",
+    "status": "Statusi",
+    "start": "Ndiz",
+    "stop": "Fik",
+    "drive": "Vozit",
+    "loading": "Duke u ngarkuar...",
+    "permissions": "Lejet",
+    "language": "Gjuha"
+  },
+  "auth": {
+    "username": "Emri i përdoruesit",
+    "password": "Fjalëkalimi",
+    "invalidCredentials": "Kredencialet e pavlefshme ose gabim serveri",
+    "newPasswordHint": "Fjalëkalimi i ri (lëre bosh për të mbajtur)"
+  },
+  "dashboard": {
+    "title": "Paneli i Emulatorit të Makinave"
+  },
+  "tabs": {
+    "cars": "Makina",
+    "motorcycles": "Motorra",
+    "users": "Përdorues",
+    "roles": "Role",
+    "permissions": "Leje"
+  },
+  "cars": {
+    "addCar": "Shto Makinë",
+    "editCar": "Ndrysho Makinën",
+    "carName": "Emri i Makinës",
+    "deleteCar": "Fshi Makinën",
+    "deleteCarConfirm": "Jeni i sigurt që dëshironi të fshini këtë makinë? Ky veprim nuk mund të zhbëhet.",
+    "failedToSave": "Makina nuk u ruajt",
+    "failedToDelete": "Makina nuk u fshi",
+    "failedToUpdateStatus": "Statusi i makinës nuk u përditësua",
+    "running": "Ndezur",
+    "stopped": "Fikur",
+    "unknown": "I panjohur"
+  },
+  "motorcycles": {
+    "addMotorcycle": "Shto Motor",
+    "editMotorcycle": "Ndrysho Motorin",
+    "motorcycleName": "Emri i Motorit",
+    "deleteMotorcycle": "Fshi Motorin",
+    "deleteMotorcycleConfirm": "Jeni i sigurt që dëshironi të fshini këtë motor? Ky veprim nuk mund të zhbëhet.",
+    "failedToSave": "Motori nuk u ruajt",
+    "failedToDelete": "Motori nuk u fshi",
+    "failedToUpdateStatus": "Statusi i motorit nuk u përditësua",
+    "running": "Ndezur",
+    "stopped": "Fikur",
+    "driving": "Duke vozitur",
+    "unknown": "I panjohur"
+  },
+  "users": {
+    "addUser": "Shto Përdorues",
+    "editUser": "Ndrysho Përdoruesin",
+    "deleteUser": "Fshi Përdoruesin",
+    "deleteUserConfirm": "Jeni i sigurt që dëshironi të fshini këtë përdorues? Ky veprim nuk mund të zhbëhet.",
+    "failedToSave": "Përdoruesi nuk u ruajt",
+    "failedToDelete": "Përdoruesi nuk u fshi",
+    "selectRoles": "Rolet"
+  },
+  "roles": {
+    "addRole": "Shto Rol",
+    "editRole": "Ndrysho Rolin",
+    "roleName": "Emri i Rolit",
+    "deleteRole": "Fshi Rolin",
+    "deleteRoleConfirm": "Jeni i sigurt që dëshironi të fshini këtë rol? Ky veprim nuk mund të zhbëhet.",
+    "failedToSave": "Roli nuk u ruajt",
+    "failedToDelete": "Roli nuk u fshi",
+    "selectPermissions": "Lejet"
+  },
+  "permissions": {
+    "addPermission": "Shto Leje",
+    "editPermission": "Ndrysho Lejen",
+    "permissionName": "Emri i Lejes",
+    "deletePermission": "Fshi Lejen",
+    "deletePermissionConfirm": "Jeni i sigurt që dëshironi të fshini këtë leje? Ky veprim nuk mund të zhbëhet.",
+    "failedToSave": "Leja nuk u ruajt",
+    "failedToDelete": "Leja nuk u fshi"
+  },
+  "errors": {
+    "failedToLoadData": "Të dhënat nuk u ngarkuan"
+  },
+  "languages": {
+    "en": "Anglisht",
+    "de": "Gjermanisht",
+    "it": "Italisht",
+    "sq": "Shqip"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "common": {
+    "login": "Accedi",
+    "logout": "Esci",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "actions": "Azioni",
+    "name": "Nome",
+    "status": "Stato",
+    "start": "Avvia",
+    "stop": "Ferma",
+    "drive": "Guida",
+    "loading": "Caricamento...",
+    "permissions": "Permessi",
+    "language": "Lingua"
+  },
+  "auth": {
+    "username": "Nome utente",
+    "password": "Password",
+    "invalidCredentials": "Credenziali non valide o errore del server",
+    "newPasswordHint": "Nuova password (lascia vuoto per mantenere)"
+  },
+  "dashboard": {
+    "title": "Dashboard Emulatore Macchine"
+  },
+  "tabs": {
+    "cars": "Auto",
+    "motorcycles": "Motociclette",
+    "users": "Utenti",
+    "roles": "Ruoli",
+    "permissions": "Permessi"
+  },
+  "cars": {
+    "addCar": "Aggiungi Auto",
+    "editCar": "Modifica Auto",
+    "carName": "Nome Auto",
+    "deleteCar": "Elimina Auto",
+    "deleteCarConfirm": "Sei sicuro di voler eliminare questa auto? Questa azione non può essere annullata.",
+    "failedToSave": "Impossibile salvare l'auto",
+    "failedToDelete": "Impossibile eliminare l'auto",
+    "failedToUpdateStatus": "Impossibile aggiornare lo stato dell'auto",
+    "running": "In esecuzione",
+    "stopped": "Fermato",
+    "unknown": "Sconosciuto"
+  },
+  "motorcycles": {
+    "addMotorcycle": "Aggiungi Motocicletta",
+    "editMotorcycle": "Modifica Motocicletta",
+    "motorcycleName": "Nome Motocicletta",
+    "deleteMotorcycle": "Elimina Motocicletta",
+    "deleteMotorcycleConfirm": "Sei sicuro di voler eliminare questa motocicletta? Questa azione non può essere annullata.",
+    "failedToSave": "Impossibile salvare la motocicletta",
+    "failedToDelete": "Impossibile eliminare la motocicletta",
+    "failedToUpdateStatus": "Impossibile aggiornare lo stato della motocicletta",
+    "running": "In esecuzione",
+    "stopped": "Fermato",
+    "driving": "In guida",
+    "unknown": "Sconosciuto"
+  },
+  "users": {
+    "addUser": "Aggiungi Utente",
+    "editUser": "Modifica Utente",
+    "deleteUser": "Elimina Utente",
+    "deleteUserConfirm": "Sei sicuro di voler eliminare questo utente? Questa azione non può essere annullata.",
+    "failedToSave": "Impossibile salvare l'utente",
+    "failedToDelete": "Impossibile eliminare l'utente",
+    "selectRoles": "Ruoli"
+  },
+  "roles": {
+    "addRole": "Aggiungi Ruolo",
+    "editRole": "Modifica Ruolo",
+    "roleName": "Nome Ruolo",
+    "deleteRole": "Elimina Ruolo",
+    "deleteRoleConfirm": "Sei sicuro di voler eliminare questo ruolo? Questa azione non può essere annullata.",
+    "failedToSave": "Impossibile salvare il ruolo",
+    "failedToDelete": "Impossibile eliminare il ruolo",
+    "selectPermissions": "Permessi"
+  },
+  "permissions": {
+    "addPermission": "Aggiungi Permesso",
+    "editPermission": "Modifica Permesso",
+    "permissionName": "Nome Permesso",
+    "deletePermission": "Elimina Permesso",
+    "deletePermissionConfirm": "Sei sicuro di voler eliminare questo permesso? Questa azione non può essere annullata.",
+    "failedToSave": "Impossibile salvare il permesso",
+    "failedToDelete": "Impossibile eliminare il permesso"
+  },
+  "errors": {
+    "failedToLoadData": "Impossibile caricare i dati"
+  },
+  "languages": {
+    "en": "Inglese",
+    "de": "Tedesco",
+    "it": "Italiano",
+    "sq": "Albanese"
+  }
+}
