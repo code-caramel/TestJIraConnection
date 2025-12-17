@@ -25,7 +25,7 @@ const translations: Record<Language, TranslationObject> = {
 };
 
 const STORAGE_KEY = 'machineEmulator_language';
-const DEFAULT_LANGUAGE: Language = 'en';
+const DEFAULT_LANGUAGE: Language = 'de';
 
 interface I18nContextType {
   language: Language;
