@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import axios from 'axios';
+import { useConfirmDialog } from './components';
 
 const API_BASE = 'http://localhost:5051/api';
 
@@ -38,7 +39,19 @@ interface Car {
   status: CarStatus;
 }
 
+interface MotorcycleStatus {
+  id: number;
+  status: string;
+}
+
+interface Motorcycle {
+  id: number;
+  name: string;
+  status: MotorcycleStatus;
+}
+
 function App() {
+  const { confirm } = useConfirmDialog();
   const [token, setToken] = useState<string | null>(null);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [userName, setUserName] = useState('');
@@ -53,10 +66,13 @@ function App() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [cars, setCars] = useState<Car[]>([]);
   const [carStatuses, setCarStatuses] = useState<CarStatus[]>([]);
+  const [motorcycles, setMotorcycles] = useState<Motorcycle[]>([]);
+  const [motorcycleStatuses, setMotorcycleStatuses] = useState<MotorcycleStatus[]>([]);
 
   // Sorting states - default to first column ascending
   type Order = 'asc' | 'desc';
   const [carsSort, setCarsSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
+  const [motorcyclesSort, setMotorcyclesSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
   const [usersSort, setUsersSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'userName', order: 'asc' });
   const [rolesSort, setRolesSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
   const [permissionsSort, setPermissionsSort] = useState<{ orderBy: string; order: Order }>({ orderBy: 'name', order: 'asc' });
@@ -84,9 +100,9 @@ function App() {
     return value;
   };
 
-  const handleSort = (table: 'cars' | 'users' | 'roles' | 'permissions', property: string) => {
-    const setSort = { cars: setCarsSort, users: setUsersSort, roles: setRolesSort, permissions: setPermissionsSort }[table];
-    const currentSort = { cars: carsSort, users: usersSort, roles: rolesSort, permissions: permissionsSort }[table];
+  const handleSort = (table: 'cars' | 'motorcycles' | 'users' | 'roles' | 'permissions', property: string) => {
+    const setSort = { cars: setCarsSort, motorcycles: setMotorcyclesSort, users: setUsersSort, roles: setRolesSort, permissions: setPermissionsSort }[table];
+    const currentSort = { cars: carsSort, motorcycles: motorcyclesSort, users: usersSort, roles: rolesSort, permissions: permissionsSort }[table];
 
     const isAsc = currentSort.orderBy === property && currentSort.order === 'asc';
     setSort({ orderBy: property, order: isAsc ? 'desc' : 'asc' });
@@ -97,6 +113,7 @@ function App() {
   const [roleDialog, setRoleDialog] = useState<{ open: boolean; role?: Role }>({ open: false });
   const [permDialog, setPermDialog] = useState<{ open: boolean; permission?: Permission }>({ open: false });
   const [carDialog, setCarDialog] = useState<{ open: boolean; car?: Car }>({ open: false });
+  const [motorcycleDialog, setMotorcycleDialog] = useState<{ open: boolean; motorcycle?: Motorcycle }>({ open: false });
 
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -107,6 +124,10 @@ function App() {
   const canManageCars = () => hasPermission('ManageCars');
   const canStartCar = () => hasPermission('StartCar');
   const canStopCar = () => hasPermission('StopCar');
+  const canManageMotorcycles = () => hasPermission('ManageMotorcycles');
+  const canStartMotorcycle = () => hasPermission('StartMotorcycle');
+  const canStopMotorcycle = () => hasPermission('StopMotorcycle');
+  const canDriveMotorcycle = () => hasPermission('DriveMotorcycle');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,6 +149,8 @@ function App() {
     setPermissions([]);
     setCars([]);
     setCarStatuses([]);
+    setMotorcycles([]);
+    setMotorcycleStatuses([]);
   };
 
   const fetchData = useCallback(async () => {
@@ -138,6 +161,8 @@ function App() {
       const requests: Promise<any>[] = [
         axios.get(`${API_BASE}/Car`, authHeaders).catch(() => ({ data: [] })),
         axios.get(`${API_BASE}/Car/statuses`, authHeaders).catch(() => ({ data: [] })),
+        axios.get(`${API_BASE}/Motorcycle`, authHeaders).catch(() => ({ data: [] })),
+        axios.get(`${API_BASE}/Motorcycle/statuses`, authHeaders).catch(() => ({ data: [] })),
       ];
 
       if (hasPermission('ManageUsers')) {
@@ -151,8 +176,10 @@ function App() {
       const results = await Promise.all(requests);
       setCars(results[0].data);
       setCarStatuses(results[1].data);
+      setMotorcycles(results[2].data);
+      setMotorcycleStatuses(results[3].data);
 
-      let idx = 2;
+      let idx = 4;
       if (hasPermission('ManageUsers')) {
         setUsers(results[idx++].data);
       }
@@ -180,6 +207,15 @@ function App() {
     }
   };
 
+  const handleMotorcycleAction = async (motorcycleId: number, action: 'start' | 'stop' | 'drive') => {
+    try {
+      await axios.post(`${API_BASE}/Motorcycle/${motorcycleId}/${action}`, {}, authHeaders);
+      fetchData();
+    } catch {
+      setError('Failed to update motorcycle status');
+    }
+  };
+
   // User CRUD
   const saveUser = async (data: { userName: string; password?: string; roleIds: number[] }, id?: number) => {
     try {
@@ -196,7 +232,14 @@ function App() {
   };
 
   const deleteUser = async (id: number) => {
-    if (!confirm('Delete this user?')) return;
+    const confirmed = await confirm({
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructive: true,
+    });
+    if (!confirmed) return;
     try {
       await axios.delete(`${API_BASE}/User/${id}`, authHeaders);
       fetchData();
@@ -221,7 +264,14 @@ function App() {
   };
 
   const deleteRole = async (id: number) => {
-    if (!confirm('Delete this role?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Role',
+      message: 'Are you sure you want to delete this role? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructive: true,
+    });
+    if (!confirmed) return;
     try {
       await axios.delete(`${API_BASE}/Role/${id}`, authHeaders);
       fetchData();
@@ -246,7 +296,14 @@ function App() {
   };
 
   const deletePermission = async (id: number) => {
-    if (!confirm('Delete this permission?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Permission',
+      message: 'Are you sure you want to delete this permission? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructive: true,
+    });
+    if (!confirmed) return;
     try {
       await axios.delete(`${API_BASE}/Permission/${id}`, authHeaders);
       fetchData();
@@ -271,12 +328,51 @@ function App() {
   };
 
   const deleteCar = async (id: number) => {
-    if (!confirm('Delete this car?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Car',
+      message: 'Are you sure you want to delete this car? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructive: true,
+    });
+    if (!confirmed) return;
     try {
       await axios.delete(`${API_BASE}/Car/${id}`, authHeaders);
       fetchData();
     } catch {
       setError('Failed to delete car');
+    }
+  };
+
+  // Motorcycle CRUD
+  const saveMotorcycle = async (data: { name: string; statusId?: number }, id?: number) => {
+    try {
+      if (id) {
+        await axios.put(`${API_BASE}/Motorcycle/${id}`, data, authHeaders);
+      } else {
+        await axios.post(`${API_BASE}/Motorcycle`, data, authHeaders);
+      }
+      fetchData();
+      setMotorcycleDialog({ open: false });
+    } catch {
+      setError('Failed to save motorcycle');
+    }
+  };
+
+  const deleteMotorcycle = async (id: number) => {
+    const confirmed = await confirm({
+      title: 'Delete Motorcycle',
+      message: 'Are you sure you want to delete this motorcycle? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDestructive: true,
+    });
+    if (!confirmed) return;
+    try {
+      await axios.delete(`${API_BASE}/Motorcycle/${id}`, authHeaders);
+      fetchData();
+    } catch {
+      setError('Failed to delete motorcycle');
     }
   };
 
@@ -328,6 +424,7 @@ function App() {
 
         <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 3 }}>
           <Tab label="Cars" />
+          <Tab label="Motorcycles" />
           {canManageUsers() && <Tab label="Users" />}
           {canManageRoles() && <Tab label="Roles" />}
           {canManageRoles() && <Tab label="Permissions" />}
@@ -424,8 +521,105 @@ function App() {
               </>
             )}
 
+            {/* Motorcycles Tab */}
+            {tabIndex === 1 && (
+              <>
+                {canManageMotorcycles() && (
+                  <Stack direction="row" justifyContent="flex-end" mb={2}>
+                    <Button startIcon={<AddIcon />} variant="contained" onClick={() => setMotorcycleDialog({ open: true })}>
+                      Add Motorcycle
+                    </Button>
+                  </Stack>
+                )}
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sortDirection={motorcyclesSort.orderBy === 'name' ? motorcyclesSort.order : false}>
+                          <TableSortLabel
+                            active={motorcyclesSort.orderBy === 'name'}
+                            direction={motorcyclesSort.orderBy === 'name' ? motorcyclesSort.order : 'asc'}
+                            onClick={() => handleSort('motorcycles', 'name')}
+                          >
+                            Name
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell sortDirection={motorcyclesSort.orderBy === 'status.status' ? motorcyclesSort.order : false}>
+                          <TableSortLabel
+                            active={motorcyclesSort.orderBy === 'status.status'}
+                            direction={motorcyclesSort.orderBy === 'status.status' ? motorcyclesSort.order : 'asc'}
+                            onClick={() => handleSort('motorcycles', 'status.status')}
+                          >
+                            Status
+                          </TableSortLabel>
+                        </TableCell>
+                        <TableCell align="right">Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {sortData(motorcycles, motorcyclesSort.orderBy, motorcyclesSort.order).map(motorcycle => (
+                        <TableRow key={motorcycle.id}>
+                          <TableCell>{motorcycle.name}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={motorcycle.status?.status || 'Unknown'}
+                              color={motorcycle.status?.status === 'Running' ? 'success' : motorcycle.status?.status === 'Driving' ? 'primary' : 'default'}
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            {canStartMotorcycle() && (
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                sx={{ mr: 1 }}
+                                disabled={motorcycle.status?.status === 'Running' || motorcycle.status?.status === 'Driving'}
+                                onClick={() => handleMotorcycleAction(motorcycle.id, 'start')}
+                              >
+                                Start
+                              </Button>
+                            )}
+                            {canDriveMotorcycle() && (
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                sx={{ mr: 1 }}
+                                disabled={motorcycle.status?.status !== 'Running'}
+                                onClick={() => handleMotorcycleAction(motorcycle.id, 'drive')}
+                              >
+                                Drive
+                              </Button>
+                            )}
+                            {canStopMotorcycle() && (
+                              <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                sx={{ mr: 1 }}
+                                disabled={motorcycle.status?.status === 'Stopped'}
+                                onClick={() => handleMotorcycleAction(motorcycle.id, 'stop')}
+                              >
+                                Stop
+                              </Button>
+                            )}
+                            {canManageMotorcycles() && (
+                              <>
+                                <IconButton onClick={() => setMotorcycleDialog({ open: true, motorcycle })}><EditIcon /></IconButton>
+                                <IconButton onClick={() => deleteMotorcycle(motorcycle.id)}><DeleteIcon /></IconButton>
+                              </>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
+            )}
+
             {/* Users Tab - Only shown for users with ManageUsers permission */}
-            {tabIndex === 1 && canManageUsers() && (
+            {tabIndex === 2 && canManageUsers() && (
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setUserDialog({ open: true })}>
@@ -477,7 +671,7 @@ function App() {
             )}
 
             {/* Roles Tab - Only shown for users with ManageRoles permission */}
-            {tabIndex === 2 && canManageRoles() && (
+            {tabIndex === 3 && canManageRoles() && (
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setRoleDialog({ open: true })}>
@@ -521,7 +715,7 @@ function App() {
             )}
 
             {/* Permissions Tab - Only shown for users with ManageRoles permission */}
-            {tabIndex === 3 && canManageRoles() && (
+            {tabIndex === 4 && canManageRoles() && (
               <>
                 <Stack direction="row" justifyContent="flex-end" mb={2}>
                   <Button startIcon={<AddIcon />} variant="contained" onClick={() => setPermDialog({ open: true })}>
@@ -595,6 +789,15 @@ function App() {
           statuses={carStatuses}
           onClose={() => setCarDialog({ open: false })}
           onSave={saveCar}
+        />
+
+        {/* Motorcycle Dialog */}
+        <MotorcycleDialog
+          open={motorcycleDialog.open}
+          motorcycle={motorcycleDialog.motorcycle}
+          statuses={motorcycleStatuses}
+          onClose={() => setMotorcycleDialog({ open: false })}
+          onSave={saveMotorcycle}
         />
       </Box>
     </Container>
@@ -818,6 +1021,63 @@ function CarDialog({ open, car, statuses, onClose, onSave }: {
         <Button
           variant="contained"
           onClick={() => onSave({ name, statusId: statusId || undefined }, car?.id)}
+          disabled={!name}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// Motorcycle Dialog Component
+function MotorcycleDialog({ open, motorcycle, statuses, onClose, onSave }: {
+  open: boolean;
+  motorcycle?: Motorcycle;
+  statuses: MotorcycleStatus[];
+  onClose: () => void;
+  onSave: (data: { name: string; statusId?: number }, id?: number) => void;
+}) {
+  const [name, setName] = useState('');
+  const [statusId, setStatusId] = useState<number | ''>('');
+
+  useEffect(() => {
+    if (open) {
+      setName(motorcycle?.name || '');
+      setStatusId(motorcycle?.status?.id || '');
+    }
+  }, [open, motorcycle]);
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{motorcycle ? 'Edit Motorcycle' : 'Add Motorcycle'}</DialogTitle>
+      <DialogContent>
+        <TextField
+          label="Motorcycle Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          fullWidth
+          margin="normal"
+          required
+        />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={statusId}
+            onChange={e => setStatusId(e.target.value as number)}
+            label="Status"
+          >
+            {statuses.map(s => (
+              <MenuItem key={s.id} value={s.id}>{s.status}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          onClick={() => onSave({ name, statusId: statusId || undefined }, motorcycle?.id)}
           disabled={!name}
         >
           Save

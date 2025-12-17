@@ -2,6 +2,7 @@
 using MachineEmu.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MachineEmu.Database.Migrations
 {
     [DbContext(typeof(MachineEmuDbContext))]
-    partial class MachineEmuDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251217075417_AddMotorcycleEntity")]
+    partial class AddMotorcycleEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

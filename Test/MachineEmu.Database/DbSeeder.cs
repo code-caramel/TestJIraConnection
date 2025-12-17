@@ -25,9 +25,27 @@ using System.Linq;
 						new Permission { Name = "ManageCars" },
 						new Permission { Name = "StartCar" },
 						new Permission { Name = "StopCar" },
-						new Permission { Name = "GetCarStatus" }
+						new Permission { Name = "GetCarStatus" },
+						new Permission { Name = "ManageMotorcycles" },
+						new Permission { Name = "StartMotorcycle" },
+						new Permission { Name = "StopMotorcycle" },
+						new Permission { Name = "DriveMotorcycle" }
 					};
 					db.Permissions.AddRange(perms);
+					db.SaveChanges();
+				}
+				else
+				{
+					// Add new motorcycle permissions if they don't exist
+					var existingPerms = db.Permissions.Select(p => p.Name).ToList();
+					var newPerms = new[] { "ManageMotorcycles", "StartMotorcycle", "StopMotorcycle", "DriveMotorcycle" };
+					foreach (var permName in newPerms)
+					{
+						if (!existingPerms.Contains(permName))
+						{
+							db.Permissions.Add(new Permission { Name = permName });
+						}
+					}
 					db.SaveChanges();
 				}
 
@@ -41,10 +59,11 @@ using System.Linq;
 					var user = db.Roles.First(r => r.Name == "User");
 					var perms = db.Permissions.ToList();
 					// Admin gets only management permissions (NOT StartCar/StopCar/GetCarStatus)
-					var adminPerms = perms.Where(p => p.Name == "ManageUsers" || p.Name == "ManageRoles" || p.Name == "ManageCars")
+					var adminPerms = perms.Where(p => p.Name == "ManageUsers" || p.Name == "ManageRoles" || p.Name == "ManageCars" || p.Name == "ManageMotorcycles")
 						.Select(p => new RolePermission { RoleId = admin.Id, PermissionId = p.Id });
-					// User gets only car operation permissions
-					var userPerms = perms.Where(p => p.Name == "StartCar" || p.Name == "StopCar" || p.Name == "GetCarStatus")
+					// User gets only car and motorcycle operation permissions
+					var userPerms = perms.Where(p => p.Name == "StartCar" || p.Name == "StopCar" || p.Name == "GetCarStatus" ||
+						p.Name == "StartMotorcycle" || p.Name == "StopMotorcycle" || p.Name == "DriveMotorcycle")
 						.Select(p => new RolePermission { RoleId = user.Id, PermissionId = p.Id });
 					db.RolePermissions.AddRange(adminPerms.Concat(userPerms));
 					db.SaveChanges();
@@ -84,6 +103,29 @@ using System.Linq;
 					);
 					db.SaveChanges();
 				}
+
+				// Seed motorcycle statuses
+				if (!db.MotorcycleStatuses.Any())
+				{
+					var statuses = new[] {
+						new MotorcycleStatus { Status = "Stopped" },
+						new MotorcycleStatus { Status = "Running" },
+						new MotorcycleStatus { Status = "Driving" }
+					};
+					db.MotorcycleStatuses.AddRange(statuses);
+					db.SaveChanges();
+				}
+
+				// Seed motorcycles
+				if (!db.Motorcycles.Any())
+				{
+					var stopped = db.MotorcycleStatuses.First(s => s.Status == "Stopped");
+					db.Motorcycles.AddRange(
+						new Motorcycle { Name = "Motorcycle A", StatusId = stopped.Id },
+						new Motorcycle { Name = "Motorcycle B", StatusId = stopped.Id }
+					);
+					db.SaveChanges();
+				}
 			}
 		}
 
@@ -98,6 +140,8 @@ using System.Linq;
 			public DbSet<RolePermission> RolePermissions { get; set; }
 			public DbSet<Car> Cars { get; set; }
 			public DbSet<CarStatus> CarStatuses { get; set; }
+			public DbSet<Motorcycle> Motorcycles { get; set; }
+			public DbSet<MotorcycleStatus> MotorcycleStatuses { get; set; }
 
 			protected override void OnModelCreating(ModelBuilder modelBuilder)
 			{
@@ -160,5 +204,20 @@ using System.Linq;
 			public int Id { get; set; }
 			public string Status { get; set; }
 			public ICollection<Car> Cars { get; set; }
+		}
+
+		public class Motorcycle
+		{
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public int StatusId { get; set; }
+			public MotorcycleStatus Status { get; set; }
+		}
+
+		public class MotorcycleStatus
+		{
+			public int Id { get; set; }
+			public string Status { get; set; }
+			public ICollection<Motorcycle> Motorcycles { get; set; }
 		}
 	}

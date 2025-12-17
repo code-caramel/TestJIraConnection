@@ -35,5 +35,9 @@ namespace MachineEmulator.Api.Authorization
         public const string StartCar = "StartCar";
         public const string StopCar = "StopCar";
         public const string GetCarStatus = "GetCarStatus";
+        public const string ManageMotorcycles = "ManageMotorcycles";
+        public const string StartMotorcycle = "StartMotorcycle";
+        public const string StopMotorcycle = "StopMotorcycle";
+        public const string DriveMotorcycle = "DriveMotorcycle";
     }
 }

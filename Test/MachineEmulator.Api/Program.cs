@@ -18,6 +18,7 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<MachineEmulator.ICar, MachineEmulator.Car>();
+builder.Services.AddScoped<MachineEmulator.IMotorcycle, MachineEmulator.Motorcycle>();
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
@@ -61,6 +62,14 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.StopCar)));
     options.AddPolicy(PermissionPolicies.GetCarStatus, policy =>
         policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.GetCarStatus)));
+    options.AddPolicy(PermissionPolicies.ManageMotorcycles, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.ManageMotorcycles)));
+    options.AddPolicy(PermissionPolicies.StartMotorcycle, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.StartMotorcycle)));
+    options.AddPolicy(PermissionPolicies.StopMotorcycle, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.StopMotorcycle)));
+    options.AddPolicy(PermissionPolicies.DriveMotorcycle, policy =>
+        policy.Requirements.Add(new PermissionRequirement(PermissionPolicies.DriveMotorcycle)));
 });
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
@@ -74,6 +83,7 @@ app.UseCors("AllowFrontend");
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MachineEmuDbContext>();
+    db.Database.Migrate(); // Apply pending migrations
     DbSeeder.Seed(db);
 }
 
