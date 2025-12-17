@@ -34,7 +34,8 @@ async function login(request: APIRequestContext, username: string, password: str
 test('API server health check and initialization', async ({ page, request }) => {
   // Navigate to frontend to ensure both servers are started via webServer config
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible({ timeout: 30000 });
+  // Wait for form to be visible (language-agnostic)
+  await expect(page.locator('form')).toBeVisible({ timeout: 30000 });
 
   // Verify API is accessible
   const carsResponse = await request.get(`${API_BASE}/Car`);
